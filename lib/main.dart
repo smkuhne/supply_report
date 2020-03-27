@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:preliminary/fragments/map.dart';
 import 'package:preliminary/fragments/list.dart';
+import 'package:preliminary/controllers/map_controller.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,21 +30,51 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String fragment = 'Map';
+  final MapController controller = MapController();
+  MapPage mappage = MapPage();
+  ListPage listpage = ListPage();
 
   @override
   void initState() {
     super.initState();
+
+    mappage = MapPage(
+      controller: controller
+    );
+    listpage = ListPage();
   }
 
-  _getMainFragment(fragment) {
+  _getMainFragment() {
     switch (fragment) {
       case 'Map':
-        return new MapPage();
+        return mappage;
       case 'List':
-        return new ListPage();
+        return listpage;
 
       default:
         return new Text("Cannot find Page");
+    }
+  }
+
+  _getIcon() {
+    switch (fragment) {
+      case 'Map':
+        return Icon(Icons.my_location);
+      case 'List':
+        return Icon(Icons.add);
+    }
+  }
+
+  _getAction() {
+    debugPrint("Clicked");
+    switch (fragment) {
+      case 'Map':
+        if (controller.updateCurrentPosition != null){
+          controller.updateCurrentPosition();
+        }
+        break;
+      case 'List':
+        break;
     }
   }
 
@@ -54,7 +85,7 @@ class _HomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _getMainFragment(fragment)
+        child: _getMainFragment()
       ),
       drawer: Drawer(
         child: ListView(
@@ -107,8 +138,10 @@ class _HomePageState extends State<HomePage> {
         )
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: _getIcon(),
+        onPressed: () {
+          _getAction();
+        },
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
