@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:preliminary/fragments/map.dart';
 import 'package:preliminary/fragments/list.dart';
-import 'package:preliminary/controllers/map_controller.dart';
 
 void main() => runApp(MyApp());
 
@@ -88,54 +87,54 @@ class _HomePageState extends State<HomePage> {
         child: _getMainFragment()
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white
-                )
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text(
+                    widget.title,
+                    style: TextStyle(
+                        color: Colors.white
+                    )
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
               ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.map,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'Map view',
-              ),
-              title: Text('Map'),
-              onTap: () {
-                setState(() {
-                  fragment = 'Map';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.map,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'Map view',
+                ),
+                title: Text('Map'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'Map';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.local_grocery_store,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'List view',
+                  Navigator.pop(context);
+                },
               ),
-              title: Text('Stores'),
-              onTap: () {
-                setState(() {
-                  fragment = 'List';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.local_grocery_store,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'List view',
+                ),
+                title: Text('Stores'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'List';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        )
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          )
       ),
       floatingActionButton: FloatingActionButton(
         child: _getIcon(),
