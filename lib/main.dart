@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:preliminary/fragments/map.dart';
-import 'package:preliminary/fragments/list.dart';
+
+import './fragments/map.dart';
+import './fragments/list.dart';
+import './fragments/store.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,20 +55,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: _getMainFragment(fragment)
-      ),
+      body: Center(child: _getMainFragment(fragment)),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white
-                )
-              ),
+              child: Text(widget.title, style: TextStyle(color: Colors.white)),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -104,12 +99,19 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ],
-        )
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Increment',
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StorePage('Safeway'),
+            ),
+          );
+        },
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
