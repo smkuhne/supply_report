@@ -7,18 +7,48 @@ class StoreList extends StatelessWidget {
 
   StoreList(this.items);
 
+  void _updateItem(BuildContext ctx, String id) { // TODO I'm still working on this
+    showDialog(
+      context: ctx,
+      builder: (bCtx) {
+        return AlertDialog(
+          title: const Text('Update Availability'),
+          actions: <Widget>[
+            FlatButton(
+              child: const Text(
+                'Cancel',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              textColor: Colors.red,
+              onPressed: () => Navigator.of(bCtx).pop(),
+            ),
+            FlatButton(
+              child: const Text(
+                'Confirm',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              textColor: Colors.blue,
+              onPressed: () {
+                Navigator.of(bCtx).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const legend = {
-      1: Icon(
+      true: Icon(
         Icons.check,
         color: Colors.green,
       ),
-      -1: Icon(
+      false: Icon(
         Icons.close,
         color: Colors.red,
       ),
-      0: Icon(Icons.help),
     };
 
     return items.isEmpty
@@ -31,15 +61,24 @@ class StoreList extends StatelessWidget {
               const Text('Tap the + button below to input an item.'),
             ],
           )
-        : ListView.builder(
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: legend[items[index].availability],
-                title: Text(items[index].name),
-              );
-            },
-            itemCount: items.length,
-            physics: const BouncingScrollPhysics(),
+        : Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: legend[items[index].availability],
+                  title: Text(items[index].name),
+                  trailing: FlatButton(
+                    child: Text(
+                      'Update',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onPressed: () {},
+                  ),
+                );
+              },
+              itemCount: items.length,
+              physics: const BouncingScrollPhysics(),
+            ),
           );
   }
 }

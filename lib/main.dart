@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import './fragments/map.dart';
-import './fragments/list.dart';
-import './fragments/store.dart';
+import 'package:preliminary/fragments/map.dart';
+import 'package:preliminary/fragments/list.dart';
 
 void main() => runApp(MyApp());
 
@@ -55,63 +53,62 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(child: _getMainFragment(fragment)),
+      body: Center(
+          child: _getMainFragment(fragment)
+      ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(widget.title, style: TextStyle(color: Colors.white)),
-              decoration: BoxDecoration(
-                color: Colors.blue,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text(
+                    widget.title,
+                    style: TextStyle(
+                        color: Colors.white
+                    )
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.map,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'Map view',
-              ),
-              title: Text('Map'),
-              onTap: () {
-                setState(() {
-                  fragment = 'Map';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.map,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'Map view',
+                ),
+                title: Text('Map'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'Map';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.local_grocery_store,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'List view',
+                  Navigator.pop(context);
+                },
               ),
-              title: Text('Stores'),
-              onTap: () {
-                setState(() {
-                  fragment = 'List';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.local_grocery_store,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'List view',
+                ),
+                title: Text('Stores'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'List';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          )
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Increment',
         child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => StorePage('Safeway'),
-            ),
-          );
-        },
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
