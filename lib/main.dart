@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:preliminary/fragments/map.dart';
 import 'package:preliminary/fragments/list.dart';
+import 'package:preliminary/controllers/map_controller.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,21 +30,51 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String fragment = 'Map';
+  final MapController controller = MapController();
+  MapPage mappage = MapPage();
+  ListPage listpage = ListPage();
 
   @override
   void initState() {
     super.initState();
+
+    mappage = MapPage(
+      controller: controller
+    );
+    listpage = ListPage();
   }
 
-  _getMainFragment(fragment) {
+  _getMainFragment() {
     switch (fragment) {
       case 'Map':
-        return new MapPage();
+        return mappage;
       case 'List':
-        return new ListPage();
+        return listpage;
 
       default:
         return new Text("Cannot find Page");
+    }
+  }
+
+  _getIcon() {
+    switch (fragment) {
+      case 'Map':
+        return Icon(Icons.my_location);
+      case 'List':
+        return Icon(Icons.add);
+    }
+  }
+
+  _getAction() {
+    debugPrint("Clicked");
+    switch (fragment) {
+      case 'Map':
+        if (controller.updateCurrentPosition != null){
+          controller.updateCurrentPosition();
+        }
+        break;
+      case 'List':
+        break;
     }
   }
 
@@ -54,61 +85,63 @@ class _HomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _getMainFragment(fragment)
+        child: _getMainFragment()
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white
-                )
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text(
+                    widget.title,
+                    style: TextStyle(
+                        color: Colors.white
+                    )
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
               ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.map,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'Map view',
-              ),
-              title: Text('Map'),
-              onTap: () {
-                setState(() {
-                  fragment = 'Map';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.map,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'Map view',
+                ),
+                title: Text('Map'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'Map';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.local_grocery_store,
-                color: Colors.blue,
-                size: 24.0,
-                semanticLabel: 'List view',
+                  Navigator.pop(context);
+                },
               ),
-              title: Text('Stores'),
-              onTap: () {
-                setState(() {
-                  fragment = 'List';
-                });
+              ListTile(
+                leading: Icon(
+                  Icons.local_grocery_store,
+                  color: Colors.blue,
+                  size: 24.0,
+                  semanticLabel: 'List view',
+                ),
+                title: Text('Stores'),
+                onTap: () {
+                  setState(() {
+                    fragment = 'List';
+                  });
 
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        )
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          )
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: _getIcon(),
+        onPressed: () {
+          _getAction();
+        },
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
