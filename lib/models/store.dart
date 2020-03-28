@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class Store {
-  final String id;
+  final int id;
   final String name;
   final String address;
   final double latitude;
@@ -11,7 +11,7 @@ class Store {
   Store({
     @required this.id,
     @required this.name,
-    @required this. address,
+    @required this.address,
     @required this.latitude,
     @required this.longitude,
     @required this.currentOccupancy,

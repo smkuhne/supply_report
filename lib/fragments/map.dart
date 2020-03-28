@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:preliminary/models/store.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:preliminary/controllers/map_controller.dart';
@@ -17,12 +18,30 @@ class _MapPageState extends State<MapPage> {
   final Geolocator _geolocator = Geolocator()..forceAndroidLocationManager;
   LatLng _position;
   bool _loaded = false;
+  List<Store> _stores = [];
   Map<String, Marker> _markers = {};
+
+  void initState() {
+    super.initState();
+    _updateCurrentPosition();
+    _populateStores();
+    _getMarkers();
+  }
 
   _MapPageState(MapController _controller) {
     _controller.updateCurrentPosition = _updateCurrentPosition;
     debugPrint("Set up map page state");
-    _updateCurrentPosition();
+  }
+
+  // Temporary method
+  void _populateStores() {
+    _stores.add(Store(
+        id: 0,
+        name: 'Safeway',
+        address: 'Branham',
+        latitude: 37.267237,
+        longitude: -121.833264,
+        currentOccupancy: 0));
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -54,16 +73,16 @@ class _MapPageState extends State<MapPage> {
   void _getMarkers() {
     setState(() {
       _markers.clear();
-      for (final office in googleOffices.offices) {
+      for (final store in _stores) {
         final marker = Marker(
-          markerId: MarkerId(office.name),
-          position: LatLng(office.lat, office.lng),
+          markerId: MarkerId(store.name),
+          position: LatLng(store.latitude, store.longitude),
           infoWindow: InfoWindow(
-            title: office.name,
-            snippet: office.address,
+            title: store.name,
+            snippet: store.address,
           ),
         );
-        _markers[office.name] = marker;
+        _markers["${store.id}"] = marker;
       }
     });
   }

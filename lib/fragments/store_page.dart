@@ -6,7 +6,7 @@ import '../widgets/new_item.dart';
 import '../widgets/store_list.dart';
 
 class StorePage extends StatefulWidget {
-  final String storeID;
+  final int storeID;
 
   StorePage(this.storeID);
 
@@ -16,7 +16,7 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage> {
   final currentStore = Store(
-    id: '000',
+    id: 0,
     name: 'Safeway',
     address: '1234 pizza road\nBig City, CA 12345',
     latitude: 123,

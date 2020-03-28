@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:preliminary/fragments/map.dart';
 import 'package:preliminary/fragments/list.dart';
+import 'package:preliminary/controllers/map_controller.dart';
 
 void main() => runApp(MyApp());
 
