@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:preliminary/models/store.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:preliminary/controllers/map_controller.dart';
+import 'package:preliminary/fragments/store_page.dart';
 
 class MapPage extends StatefulWidget {
   MapPage({Key key, this.controller}) : super(key: key);
@@ -20,6 +22,14 @@ class _MapPageState extends State<MapPage> {
   bool _loaded = false;
   List<Store> _stores = [];
   Map<String, Marker> _markers = {};
+  int id = 0;
+  double _info = -100;
+  String _name = "Location";
+  double _latitude = 0;
+  double _longitude = 0;
+  Store _current = null;
+  bool _newStore = false;
+
 
   void initState() {
     super.initState();
@@ -29,7 +39,8 @@ class _MapPageState extends State<MapPage> {
   }
 
   _MapPageState(MapController _controller) {
-    _controller.updateCurrentPosition = _updateCurrentPosition;
+    _controller.setNewStore = _setNewStore;
+    _controller.reload = _reload;
     debugPrint("Set up map page state");
   }
 
@@ -70,6 +81,10 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  void _reload() {
+
+  }
+
   void _getMarkers() {
     setState(() {
       _markers.clear();
@@ -77,35 +92,144 @@ class _MapPageState extends State<MapPage> {
         final marker = Marker(
           markerId: MarkerId(store.name),
           position: LatLng(store.latitude, store.longitude),
-          infoWindow: InfoWindow(
-            title: store.name,
-            snippet: store.address,
-          ),
+          onTap: () {
+            setState(() {
+              _info = 0;
+              _name = store.name;
+              _latitude = store.latitude;
+              _longitude = store.longitude;
+              _current = store;
+            });
+          }
         );
         _markers["${store.id}"] = marker;
       }
     });
   }
 
-  Widget _getContent() {
+  _setNewStore(bool enabled) {
+    _newStore = enabled;
+    
+    if (!_newStore) {
+      setState(() {
+        _markers.remove('current');
+        _info = -100;
+        _current = null;
+      });
+    }
+  }
+
+  void _setMarker(latlng) {
+    setState(() {
+      final marker = Marker(
+        markerId: MarkerId('New Location'),
+        position: LatLng(latlng.latitude, latlng.longitude),
+        onTap: () {
+          setState(() {
+            _info = 0;
+            _name = 'New Location';
+            _latitude = latlng.latitude;
+            _longitude = latlng.longitude;
+            _current = null;
+          });
+        }
+      );
+      _markers['current'] = marker;
+    });
+  }
+
+  List<Widget> _getContent() {
     if (_loaded) {
-      return GoogleMap(
+      return <Widget>[
+        GoogleMap(
+          myLocationEnabled: true,
+          compassEnabled: true,
+          tiltGesturesEnabled: true,
           onMapCreated: _onMapCreated,
+          onTap: (latlng) {
+            if (_newStore) {
+              _setMarker(latlng);
+            }
+            setState(() {
+              _info = -100;
+              _current = null;
+            });
+          },
           initialCameraPosition: CameraPosition(
             target: _position,
             zoom: 13.0,
           ),
-          markers: _markers.values.toSet()
-      );
+          markers: _markers.values.toSet()),
+        AnimatedPositioned(
+          top: _info, right: 0, left: 0,
+          duration: Duration(milliseconds: 200),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              margin: EdgeInsets.all(20),
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    blurRadius: 20,
+                    offset: Offset.zero,
+                    color: Colors.grey.withOpacity(0.5)
+                  )]
+              ),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                          if (_current != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StorePage(_current)
+                              )
+                            );
+                        }
+                      },
+                      child: Icon(
+                        Icons.store,
+                        color: Colors.white,
+                        size: 35.0,
+                      ),
+                      heroTag: 'Store_Select',
+                    ),
+                  ), // first widget
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(_name),
+                            Text("$_latitude"),
+                            Text("$_longitude")
+                          ]
+                      )
+                    )
+                  )
+                ],
+              )
+            )  // end of Container
+          )  // end of Align
+        )
+      ];
     } else {
-      return CircularProgressIndicator();
+      return <Widget>[CircularProgressIndicator()];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: _getContent()
+    return Stack(
+      children: _getContent()
     );
   }
 }

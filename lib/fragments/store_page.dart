@@ -6,16 +6,16 @@ import '../widgets/new_item.dart';
 import '../widgets/store_list.dart';
 
 class StorePage extends StatefulWidget {
-  final int storeID;
+  final Store store;
 
-  StorePage(this.storeID);
+  StorePage(this.store);
 
   @override
-  _StorePageState createState() => _StorePageState();
+  _StorePageState createState() => _StorePageState(store);
 }
 
 class _StorePageState extends State<StorePage> {
-  final currentStore = Store(
+  Store currentStore = Store(
     id: 0,
     name: 'Safeway',
     address: '1234 pizza road\nBig City, CA 12345',
@@ -74,6 +74,10 @@ class _StorePageState extends State<StorePage> {
       availability: false,
     ),
   ];
+
+  _StorePageState(Store store) {
+    currentStore = store;
+  }
 
   void _addItem(String nameInput, bool availabilityInput) {
     final currentExpense = Item(

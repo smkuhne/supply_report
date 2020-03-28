@@ -33,13 +33,15 @@ class _HomePageState extends State<HomePage> {
   final MapController controller = MapController();
   MapPage mappage = MapPage();
   ListPage listpage = ListPage();
+  double _fabOffset = 60;
+  bool _newStore = false;
 
   @override
   void initState() {
     super.initState();
 
     mappage = MapPage(
-      controller: controller
+      controller: controller,
     );
     listpage = ListPage();
   }
@@ -59,9 +61,33 @@ class _HomePageState extends State<HomePage> {
   _getIcon() {
     switch (fragment) {
       case 'Map':
-        return Icon(Icons.my_location);
+        if (_newStore) {
+          return Icon(Icons.cancel);
+        } else {
+          return Icon(Icons.add);
+        }
+        break;
       case 'List':
         return Icon(Icons.add);
+    }
+  }
+
+  _getActions() {
+    switch (fragment) {
+      case 'Map':
+        return <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh,
+                color: Colors.white),
+            onPressed: () {
+              if (controller.reload != null) {
+                controller.reload();
+              }
+            },
+          )
+        ];
+      default:
+        return null;
     }
   }
 
@@ -69,8 +95,18 @@ class _HomePageState extends State<HomePage> {
     debugPrint("Clicked");
     switch (fragment) {
       case 'Map':
-        if (controller.updateCurrentPosition != null){
-          controller.updateCurrentPosition();
+        if (controller.setNewStore != null){
+          if (_newStore) {
+            controller.setNewStore(false);
+            setState(() {
+              _newStore = false;
+            });
+          } else {
+            controller.setNewStore(true);
+            setState(() {
+              _newStore = true;
+            });
+          }
         }
         break;
       case 'List':
@@ -83,6 +119,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: _getActions()
       ),
       body: Center(
         child: _getMainFragment()
@@ -113,6 +150,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   setState(() {
                     fragment = 'Map';
+                    _fabOffset = 60;
                   });
 
                   Navigator.pop(context);
@@ -129,6 +167,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   setState(() {
                     fragment = 'List';
+                    _fabOffset = 0;
                   });
 
                   Navigator.pop(context);
@@ -137,12 +176,19 @@ class _HomePageState extends State<HomePage> {
             ],
           )
       ),
-      floatingActionButton: FloatingActionButton(
-        child: _getIcon(),
-        onPressed: () {
-          _getAction();
-        },
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: Stack(
+        children: <Widget>[AnimatedPositioned(
+            bottom: _fabOffset, right: 0,
+            duration: Duration(milliseconds: 100),
+            child: FloatingActionButton(
+              child: _getIcon(),
+              onPressed: () {
+                _getAction();
+              },
+              heroTag: 'Variable'
+            )
+        ),]//
+        )
     );
   }
 }
