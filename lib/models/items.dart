@@ -61,7 +61,7 @@ class Items with ChangeNotifier {
     return [..._items];
   }
 
-//  Future<void> fetchAndSetItems() async {
+  Future<void> fetchAndSetItems() async {
 //    const url = 'fakeurl.lalalalalala'; // TODO change
 //    try {
 //      final response = await http.get(url);
@@ -78,7 +78,7 @@ class Items with ChangeNotifier {
 //    } catch (error) {
 //      throw (error);
 //    }
-//  }
+  }
 
 //  Future<void> addProduct(String name, bool availability) async {
 //    const url = 'gottahavesomelink.hahahahahaha';

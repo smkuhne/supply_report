@@ -5,9 +5,9 @@ import '../models/items.dart';
 import '../widgets/store_list_item.dart';
 
 class StoreList extends StatelessWidget {
-//  Future<void> _refreshProducts(BuildContext context) async {
-//    await Provider.of<Items>(context).fetchAndSetItems();
-//  }
+  Future<void> _refreshItems(BuildContext context) async {
+    await Provider.of<Items>(context).fetchAndSetItems();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +23,9 @@ class StoreList extends StatelessWidget {
               ),
             ),
           )
-        : // RefreshIndicator(
-//            onRefresh: () => _refreshProducts(context),
-//            child:
-            Expanded(
+        : Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => _refreshItems(context),
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   return ChangeNotifierProvider.value(
@@ -37,7 +36,7 @@ class StoreList extends StatelessWidget {
                 itemCount: currentItems.length,
                 physics: const BouncingScrollPhysics(),
               ),
-//            ),
+            ),
           );
   }
 }
