@@ -1,7 +1,7 @@
-//import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 
 import './item.dart';
 
@@ -16,7 +16,7 @@ class Items with ChangeNotifier {
       availability: false,
     ),
     Item(
-      name: 'Eggs',
+      name: 'Eggs1',
       availability: true,
     ),
     Item(
@@ -24,35 +24,75 @@ class Items with ChangeNotifier {
       availability: false,
     ),
     Item(
-      name: 'Milk',
+      name: 'Milk1',
       availability: false,
     ),
     Item(
-      name: 'Toilet Paper',
+      name: 'Toilet Paper1',
       availability: true,
     ),
     Item(
-      name: 'Eggs',
+      name: 'Eggs2',
       availability: true,
     ),
     Item(
-      name: 'Milk',
+      name: 'Milk2',
       availability: false,
     ),
     Item(
-      name: 'Eggs',
+      name: 'Eggs3',
       availability: true,
     ),
     Item(
-      name: 'Toilet Paper',
+      name: 'Toilet Paper2',
       availability: false,
     ),
     Item(
-      name: 'Milk',
+      name: 'Milk3',
       availability: false,
     ),
     Item(
-      name: 'Toilet Paper',
+      name: 'Toilet Paper3',
+      availability: false,
+    ),
+    Item(
+      name: 'Test',
+      availability: false,
+    ),
+    Item(
+      name: 'Test1',
+      availability: true,
+    ),
+    Item(
+      name: 'Test2',
+      availability: false,
+    ),
+    Item(
+      name: 'Test3',
+      availability: false,
+    ),
+    Item(
+      name: 'Test4',
+      availability: true,
+    ),
+    Item(
+      name: 'Test5',
+      availability: false,
+    ),
+    Item(
+      name: 'Test6',
+      availability: false,
+    ),
+    Item(
+      name: 'Test7',
+      availability: true,
+    ),
+    Item(
+      name: 'Test8',
+      availability: true,
+    ),
+    Item(
+      name: 'Test9',
       availability: false,
     ),
   ];
@@ -61,18 +101,19 @@ class Items with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> fetchAndSetItems() async {
-//    const url = 'fakeurl.lalalalalala'; // TODO change
+  Future<void> fetchAndSetItems(String storeID) async {
+//    final url = '127.0.0.1:5000/api/v1/items/all?storeid=$storeID';
 //    try {
 //      final response = await http.get(url);
 //      final extractedData = json.decode(response.body) as Map<String, dynamic>;
 //      final List<Item> loadedItems = [];
-//      extractedData.forEach((prodId, itemData) {
-//        loadedItems.add(Item(
-//          name: itemData['name'],
-//          availability: itemData['availability'],
-//        ));
-//      });
+////      extractedData.forEach((prodId, itemData) {
+////        loadedItems.add(Item(
+////          name: itemData['name'],
+////          availability: itemData['availability'],
+////        ));
+////      });
+//      print(extractedData);
 //      _items = loadedItems;
 //      notifyListeners();
 //    } catch (error) {
@@ -80,18 +121,17 @@ class Items with ChangeNotifier {
 //    }
   }
 
-//  Future<void> addProduct(String name, bool availability) async {
-//    const url = 'gottahavesomelink.hahahahahaha';
+//  Future<void> addItem(String storeID, String name, bool availability) async {
+//    final url = '127.0.0.1:5000/api/v1/person/add?storename=$storeID';
 //    try {
-//      final response = await http.post(
+//      await http.post(
 //        url,
 //        body: json.encode({
-//          'name': name,
+//          'itemName': name,
 //          'availability': availability,
 //        }),
 //      );
 //      final newItem = Item(
-////        id: json.decode(response.body)['name'], // should we have this?
 //        name: name,
 //        availability: availability,
 //      );
@@ -103,7 +143,7 @@ class Items with ChangeNotifier {
 //    }
 //  }
 
-  void addItem(String name, bool availability) {
+  void addItem(String storeID, String name, bool availability) {
     final newItem = Item(
       name: name,
       availability: availability,

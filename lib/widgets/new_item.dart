@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import '../models/items.dart';
 
 class NewItem extends StatefulWidget {
+  final String storeID;
+
+  NewItem(this.storeID);
+
   @override
   _NewItemState createState() => _NewItemState();
 }
@@ -19,7 +23,7 @@ class _NewItemState extends State<NewItem> {
 
     if (enteredName.isNotEmpty) {
       Provider.of<Items>(context, listen: false)
-          .addItem(enteredName, enteredAvailability);
+          .addItem(widget.storeID, enteredName, enteredAvailability);
       Navigator.of(context).pop();
     }
   }
@@ -39,7 +43,7 @@ class _NewItemState extends State<NewItem> {
           child: Column(
             children: <Widget>[
               TextField(
-                decoration: InputDecoration(labelText: 'Item Name'),
+                decoration: const InputDecoration(labelText: 'Item Name'),
                 controller: _nameController,
                 onSubmitted: (_) => _submitInput(),
               ),
@@ -50,8 +54,8 @@ class _NewItemState extends State<NewItem> {
                     RaisedButton(
                       child: Row(
                         children: <Widget>[
-                          Icon(Icons.check, color: Colors.green),
-                          Text('Available'),
+                          const Icon(Icons.check, color: Colors.green),
+                          const Text('Available'),
                         ],
                       ),
                       onPressed: availableSelected
@@ -67,8 +71,8 @@ class _NewItemState extends State<NewItem> {
                     RaisedButton(
                       child: Row(
                         children: <Widget>[
-                          Icon(Icons.close, color: Colors.red),
-                          Text('Unavailable')
+                          const Icon(Icons.close, color: Colors.red),
+                          const Text('Unavailable')
                         ],
                       ),
                       onPressed: availableSelected

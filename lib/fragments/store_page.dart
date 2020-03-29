@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/store.dart';
 import '../models/items.dart';
+import '../models/store.dart';
 import '../widgets/new_item.dart';
+import '../widgets/search_delegate.dart';
 import '../widgets/store_list.dart';
 
 class StorePage extends StatelessWidget {
@@ -25,13 +26,30 @@ class MyStorePage extends StatelessWidget {
 
   MyStorePage(this.currentStore);
 
-  void _openNewItem(BuildContext ctx) {
-    final items = Provider.of<Items>(ctx, listen: false);
+  final _scrollController = ScrollController();
+
+  void _animateToIndex(index) => _scrollController.animateTo(
+        (56 * index).toDouble(),
+        duration: Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+
+  void _openSearch(BuildContext ctx, Items items) async {
+    final searchItems = items.items;
+    final result = await showSearch(
+      context: ctx,
+      delegate: ItemSearch(searchItems),
+    );
+    _animateToIndex(searchItems.indexOf(result));
+  }
+
+  void _openNewItem(BuildContext ctx, Items items) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: ctx,
       builder: (_) {
-        return ListenableProvider.value(value: items, child: NewItem());
+        return ListenableProvider.value(
+            value: items, child: NewItem(currentStore.id));
       },
     );
   }
@@ -39,6 +57,7 @@ class MyStorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
+    final items = Provider.of<Items>(context, listen: false);
     final appBar = AppBar(
       title: Text(currentStore.name),
       actions: <Widget>[
@@ -47,6 +66,10 @@ class MyStorePage extends StatelessWidget {
             icon: const Icon(Icons.info),
             onPressed: () => Scaffold.of(ctx).openEndDrawer(),
           ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () => _openSearch(context, items),
         ),
       ],
     );
@@ -68,13 +91,8 @@ class MyStorePage extends StatelessWidget {
                 ),
               ),
             ),
-            const Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-            ListTile(
-              title: Text(currentStore.address),
-            ),
+            const Divider(height: 1.0, thickness: 1.0),
+            ListTile(title: Text(currentStore.address)),
             ListTile(
               title: Text('Estimated Current Occupancy: ' +
                   currentStore.currentOccupancy.toString()),
@@ -86,52 +104,27 @@ class MyStorePage extends StatelessWidget {
         height: availableHeight,
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 10.0,
-                left: 10.0,
-                right: 10.0,
-              ),
-              child: TextField(
-                onChanged: (value) {
-//                  filterSearchResults(value);
-                },
-//                controller: editingController,
-                decoration: InputDecoration(
-                  labelText: "Search",
-                  hintText: "Search",
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                  ),
-                ),
-              ),
-            ),
             ListTile(
               leading: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
-                    'In',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Stock',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  const Text('In',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Stock',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
-              title: Text(
+              title: const Text(
                 'Store Item',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: RaisedButton(
-                child: Text('Add Item'),
-                onPressed: () => _openNewItem(context),
+                child: const Text('Add Item'),
+                onPressed: () => _openNewItem(context, items),
               ),
             ),
-            Divider(height: 1.0, thickness: 1.0),
-            StoreList(),
+            const Divider(height: 1.0, thickness: 1.0),
+            StoreList(currentStore.id, _scrollController),
           ],
         ),
       ),
