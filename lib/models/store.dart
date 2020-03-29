@@ -6,7 +6,7 @@ class Store {
   final String address;
   final double latitude;
   final double longitude;
-  final int currentOccupancy;
+  int currentOccupancy;
 
   Store({
     @required this.id,
