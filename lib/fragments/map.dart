@@ -1,10 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:preliminary/models/store.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:preliminary/controllers/map_controller.dart';
 import 'package:preliminary/fragments/store_page.dart';
+import 'package:preliminary/tokens/places_api_key.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'dart:async';
+import 'dart:math';
+import 'dart:convert';
 
 class MapPage extends StatefulWidget {
   MapPage({Key key, this.controller}) : super(key: key);
@@ -17,18 +24,28 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   GoogleMapController mapController;
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: api_key);
   final Geolocator _geolocator = Geolocator()..forceAndroidLocationManager;
   LatLng _position;
   bool _loaded = false;
   List<Store> _stores = [];
   Map<String, Marker> _markers = {};
-  int id = 0;
-  double _info = -100;
-  String _name = "Location";
-  double _latitude = 0;
-  double _longitude = 0;
-  Store _current = null;
-  bool _newStore = false;
+  double _currentInfo = -100;
+  String _currentName = "Location";
+  String _currentAddress = "none";
+  int _currentOccupancy = 0;
+  Store _currentStore = null;
+  List _acceptableTypes = [
+    "bakery",
+    "cafe",
+    "drugstore",
+    "meal_delivery",
+    "meal_takeaway",
+    "convenience_store",
+    "department_store",
+    "supermarket",
+    "grocery_or_supermarket"
+  ];
 
 
   void initState() {
@@ -46,13 +63,32 @@ class _MapPageState extends State<MapPage> {
 
   // Temporary method
   void _populateStores() {
-    _stores.add(Store(
-        id: 'ChIJ26eGk8AxjoARhjwqAEPYckA',
-        name: 'Safeway',
-        address: 'Branham',
-        latitude: 37.267237,
-        longitude: -121.833264,
-        currentOccupancy: 0));
+    _reload();
+  }
+
+  Map<String, String> _getMinMaxOffsets(double latitude, double longitude) {
+    //Earth’s radius, sphere
+    double radius = 6378137;
+
+    //offsets in meters
+    double offset = 10000;
+
+    double dLatitude = offset/radius;
+    double dLongitude = offset/(radius*cos(latitude * pi / 180));
+
+    //OffsetPosition, decimal degrees
+    double maxLatitude = latitude + (dLatitude * 180/pi);
+    double maxLongitude = longitude + (dLongitude * 180/pi);
+
+    double minLatitude = latitude - (dLatitude * 180/pi);
+    double minLongitude = longitude - (dLongitude * 180/pi);
+
+    return {
+      'latmin': '$minLatitude',
+      'longmin': '$minLongitude',
+      'latmax': '$maxLatitude',
+      'longmax': '$maxLongitude'
+    };
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -81,8 +117,36 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void _reload() {
+  void _reload() async {
+    Position position = await _geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
+    double latitude = position.latitude;
+    double longitude = position.longitude;
+    Map<String, String> offsets = _getMinMaxOffsets(latitude, longitude);
+
+    var uri = Uri.https('pro-router-231219.appspot.com',
+        '/api/v1/stores',
+        offsets
+    );
+
+    final response = await http.get(uri);
+
+    final json = jsonDecode(response.body);
+
+    _stores.clear();
+
+    for (Map store in json) {
+      debugPrint(store['storeID']);
+      _stores.add(Store(
+          id: store['storeID'],
+          name: store['storeName'],
+          address: store['addr'],
+          latitude: double.parse(store['latitude']),
+          longitude: double.parse(store['longitude']),
+          currentOccupancy: int.parse(store['occupancy'])));
+    }
+
+    _getMarkers();
   }
 
   void _getMarkers() {
@@ -90,15 +154,15 @@ class _MapPageState extends State<MapPage> {
       _markers.clear();
       for (final store in _stores) {
         final marker = Marker(
-          markerId: MarkerId(store.name),
+          markerId: MarkerId(store.id),
           position: LatLng(store.latitude, store.longitude),
           onTap: () {
             setState(() {
-              _info = 0;
-              _name = store.name;
-              _latitude = store.latitude;
-              _longitude = store.longitude;
-              _current = store;
+              _currentInfo = 0;
+              _currentName = store.name;
+              _currentAddress = store.address;
+              _currentOccupancy = store.currentOccupancy;
+              _currentStore = store;
             });
           }
         );
@@ -107,35 +171,84 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  _setNewStore(bool enabled) {
-    _newStore = enabled;
-    
-    if (!_newStore) {
-      setState(() {
-        _markers.remove('current');
-        _info = -100;
-        _current = null;
-      });
-    }
-  }
+  _setNewStore() async {
+    Position position = await _geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-  void _setMarker(latlng) {
-    setState(() {
-      final marker = Marker(
-        markerId: MarkerId('New Location'),
-        position: LatLng(latlng.latitude, latlng.longitude),
-        onTap: () {
-          setState(() {
-            _info = 0;
-            _name = 'New Location';
-            _latitude = latlng.latitude;
-            _longitude = latlng.longitude;
-            _current = null;
-          });
+    double latitude = position.latitude;
+    double longitude = position.longitude;
+
+    debugPrint('$latitude');
+    debugPrint('$longitude');
+
+    Prediction p = await PlacesAutocomplete.show(
+        context: context,
+        apiKey: api_key,
+        mode: Mode.overlay, // Mode.fullscreen
+        language: "en",
+        location: Location(latitude, longitude),
+        radius: 100);
+
+    if (p.placeId != null) {
+      PlacesDetailsResponse place = await _places.getDetailsByPlaceId(p.placeId,
+        fields: ['name', 'formatted_address', 'icon', 'geometry', 'types']);
+      String name = place.result.name;
+      String address = place.result.formattedAddress;
+      latitude = place.result.geometry.location.lat;
+      longitude = place.result.geometry.location.lng;
+      String icon = place.result.icon;
+      List types = place.result.types;
+      bool acceptable = false;
+
+      for (String type in _acceptableTypes) {
+        if (types.contains(type)) {
+          acceptable = true;
         }
-      );
-      _markers['current'] = marker;
-    });
+      }
+
+      if (acceptable) {
+        _stores.add(Store(
+            id: p.placeId,
+            name: name,
+            address: address,
+            latitude: latitude,
+            longitude: longitude,
+            currentOccupancy: 0));
+        _getMarkers();
+
+        var uri = Uri.https('pro-router-231219.appspot.com',
+          '/api/v1/store/add',
+            {
+              'storeid': p.placeId,
+              'storename': name,
+              'address': address,
+              'latitude': '$latitude',
+              'longitude': '$longitude'
+            }
+        );
+        await http.post(uri);
+
+        debugPrint(uri.toString());
+      } else {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Invalid Location'),
+              content: Text('You can only add locations which serve essential supplies.'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
   }
 
   List<Widget> _getContent() {
@@ -147,12 +260,9 @@ class _MapPageState extends State<MapPage> {
           tiltGesturesEnabled: true,
           onMapCreated: _onMapCreated,
           onTap: (latlng) {
-            if (_newStore) {
-              _setMarker(latlng);
-            }
             setState(() {
-              _info = -100;
-              _current = null;
+              _currentInfo = -100;
+              _currentStore = null;
             });
           },
           initialCameraPosition: CameraPosition(
@@ -161,63 +271,69 @@ class _MapPageState extends State<MapPage> {
           ),
           markers: _markers.values.toSet()),
         AnimatedPositioned(
-          top: _info, right: 0, left: 0,
+          top: _currentInfo, right: 0, left: 0,
           duration: Duration(milliseconds: 200),
           child: Align(
             alignment: Alignment.topCenter,
-            child: Container(
-              margin: EdgeInsets.all(20),
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    blurRadius: 20,
-                    offset: Offset.zero,
-                    color: Colors.grey.withOpacity(0.5)
-                  )]
-              ),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                          if (_current != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => StorePage(_current)
+            child: GestureDetector(
+              child: Container(
+                  margin: EdgeInsets.all(20),
+                  height: 70,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            blurRadius: 20,
+                            offset: Offset.zero,
+                            color: Colors.grey.withOpacity(0.5)
+                        )]
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: FloatingActionButton(
+                          child: Icon(
+                            Icons.store,
+                            color: Colors.white,
+                            size: 35.0,
+                          ),
+                          heroTag: 'Store_Select',
+                        ),
+                      ), // first widget
+                      Expanded(
+                          child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(_currentName,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1),
+                                    Text("$_currentAddress",
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1),
+                                    Text("Occupants: $_currentOccupancy")
+                                  ]
                               )
-                            );
-                        }
-                      },
-                      child: Icon(
-                        Icons.store,
-                        color: Colors.white,
-                        size: 35.0,
-                      ),
-                      heroTag: 'Store_Select',
-                    ),
-                  ), // first widget
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(_name),
-                            Text("$_latitude"),
-                            Text("$_longitude")
-                          ]
+                          )
                       )
-                    )
+                    ],
                   )
-                ],
-              )
-            )  // end of Container
+              ),
+              onTap: () {
+                if (_currentStore != null) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => StorePage(_currentStore)
+                      )
+                  );
+                }
+              }
+            )
           )  // end of Align
         )
       ];
