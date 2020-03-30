@@ -14,7 +14,7 @@ class ListPage extends StatefulWidget {
 
 class _ListPageState extends State<ListPage> {
   final currentStore = Store(
-    id: 0,
+    id: "a",
     name: 'Safeway',
     address: '1234 pizza road\nBig City, CA 12345',
     latitude: 123,

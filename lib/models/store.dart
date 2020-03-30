@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class Store {
-  final int id;
+  final String id;
   final String name;
   final String address;
   final double latitude;

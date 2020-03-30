@@ -16,7 +16,7 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage> {
   Store currentStore = Store(
-    id: 0,
+    id: "a",
     name: 'Safeway',
     address: '1234 pizza road\nBig City, CA 12345',
     latitude: 123,
