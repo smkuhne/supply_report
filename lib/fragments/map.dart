@@ -71,7 +71,7 @@ class _MapPageState extends State<MapPage> {
     double radius = 6378137;
 
     //offsets in meters
-    double offset = 10000;
+    double offset = 50000;
 
     double dLatitude = offset/radius;
     double dLongitude = offset/(radius*cos(latitude * pi / 180));
