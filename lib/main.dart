@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     if (_newStore) {
       return Icon(Icons.cancel);
     } else {
-      return Icon(Icons.add);
+      return Icon(Icons.search);
     }
   }
 

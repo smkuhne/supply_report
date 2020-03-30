@@ -95,12 +95,12 @@ class MyStorePage extends StatelessWidget {
             const Divider(height: 1.0, thickness: 1.0),
             ListTile(title: Text(currentStore.address)),
             ListTile(
-              title: Text('Longitude: ' +
-                  currentStore.longitude.toString()),
-            ),
-            ListTile(
               title: Text('Latitude: ' +
                   currentStore.latitude.toString()),
+            ),
+            ListTile(
+              title: Text('Longitude: ' +
+                  currentStore.longitude.toString()),
             ),
           ],
         ),

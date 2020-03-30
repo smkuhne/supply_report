@@ -33,7 +33,6 @@ class _MapPageState extends State<MapPage> {
   double _currentInfo = -100;
   String _currentName = "Location";
   String _currentAddress = "none";
-  int _currentOccupancy = 0;
   Store _currentStore = null;
   List _acceptableTypes = [
     "bakery",
@@ -136,7 +135,6 @@ class _MapPageState extends State<MapPage> {
     _stores.clear();
 
     for (Map store in json) {
-      debugPrint(store['storeID']);
       _stores.add(Store(
           id: store['storeID'],
           name: store['storeName'],
@@ -161,7 +159,6 @@ class _MapPageState extends State<MapPage> {
               _currentInfo = 0;
               _currentName = store.name;
               _currentAddress = store.address;
-              _currentOccupancy = store.currentOccupancy;
               _currentStore = store;
             });
           }
@@ -227,7 +224,13 @@ class _MapPageState extends State<MapPage> {
         );
         await http.post(uri);
 
-        debugPrint(uri.toString());
+        mapController.animateCamera(
+            CameraUpdate.newCameraPosition(CameraPosition(
+              target: LatLng(latitude, longitude),
+              tilt: 0.0,
+              bearing: 0,
+              zoom: 13.0,
+            )));
       } else {
         showDialog<void>(
           context: context,
