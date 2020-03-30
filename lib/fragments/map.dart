@@ -47,7 +47,7 @@ class _MapPageState extends State<MapPage> {
   // Temporary method
   void _populateStores() {
     _stores.add(Store(
-        id: '0',
+        id: 'ChIJ26eGk8AxjoARhjwqAEPYckA',
         name: 'Safeway',
         address: 'Branham',
         latitude: 37.267237,

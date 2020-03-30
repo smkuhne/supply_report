@@ -30,7 +30,7 @@ class MyStorePage extends StatelessWidget {
 
   void _animateToIndex(index) => _scrollController.animateTo(
         (56 * index).toDouble(),
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn,
       );
 

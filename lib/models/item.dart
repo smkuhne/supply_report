@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 class Item with ChangeNotifier {
   final String name;
@@ -9,8 +10,20 @@ class Item with ChangeNotifier {
     @required this.availability,
   });
 
-  void toggleAvailability() {
+  Future<void> toggleAvailability(String storeID, String itemName) async {
     availability = !availability;
-    notifyListeners();
+    final uri =
+    Uri.https('pro-router-231219.appspot.com', '/api/v1/items/add', {
+      'itemname': itemName,
+      'storeid': storeID,
+      'available': availability.toString(),
+    });
+    try {
+      print(uri); // TODO remove
+      await http.post(uri);
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
   }
 }
