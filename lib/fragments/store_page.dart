@@ -10,8 +10,7 @@ class StorePage extends StatelessWidget {
   final Store receivedStore;
 
   StorePage(this.receivedStore);
-
-  @override
+  
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: Items(),
