@@ -29,7 +29,7 @@ class MyStorePage extends StatelessWidget {
 
   void _animateToIndex(index) => _scrollController.animateTo(
         (56 * index).toDouble(),
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn,
       );
 
@@ -39,7 +39,9 @@ class MyStorePage extends StatelessWidget {
       context: ctx,
       delegate: ItemSearch(searchItems),
     );
-    _animateToIndex(searchItems.indexOf(result));
+    if (result != null) {
+      _animateToIndex(searchItems.indexOf(result));
+    }
   }
 
   void _openNewItem(BuildContext ctx, Items items) {
