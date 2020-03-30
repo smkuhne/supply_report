@@ -15,17 +15,17 @@ class StoreListItem extends StatefulWidget {
 
 class _StoreListItemState extends State<StoreListItem> {
   var _isLoading = false;
-  var _updateMode = true;
+  var _updateItem = true;
 
   void _changeItem(BuildContext ctx, String storeID, Item item) {
     showDialog(
       context: ctx,
       builder: (bCtx) {
         return AlertDialog(
-          title: _updateMode
+          title: _updateItem
               ? const Text('Update Availability')
               : const Text('Delete Item?'),
-          content: _updateMode
+          content: _updateItem
               ? Wrap(
                   children: <Widget>[
                     Text('Change ${item.name} to'),
@@ -65,26 +65,29 @@ class _StoreListItemState extends State<StoreListItem> {
                   _isLoading = true;
                 });
                 try {
-                  _updateMode
-                      ? item.toggleAvailability(widget.storeID, item.name)
-                      : Provider.of<Items>(context).removeItem(storeID, item);
+                  _updateItem
+                      ? await item.toggleAvailability(widget.storeID, item.name)
+                      : await Provider.of<Items>(context, listen: false)
+                          .removeItem(widget.storeID, item);
                 } catch (error) {
                   await showDialog(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('An error has occured!'),
-                      content: const Text('Something went wrong.'),
+                      title: Text('An error occurred!'),
+                      content: Text('Something went wrong.'),
                       actions: <Widget>[
                         FlatButton(
-                          child: const Text('Okay'),
-                          onPressed: () => Navigator.of(context).pop(), // TODO maybe wrong context
+                          child: Text('Okay'),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
                         ),
                       ],
                     ),
                   );
                 } finally {
                   setState(() {
-                    _isLoading = true;
+                    _isLoading = false;
                   });
                   Navigator.of(bCtx).pop();
                 }
@@ -124,12 +127,12 @@ class _StoreListItemState extends State<StoreListItem> {
                 style: TextStyle(color: Colors.blue),
               ),
               onPressed: () {
-                _updateMode = true;
+                _updateItem = true;
                 _changeItem(context, widget.storeID, currentItem);
               },
             ),
             onLongPress: () {
-              _updateMode = false;
+              _updateItem = false;
               _changeItem(context, widget.storeID, currentItem);
             },
           );

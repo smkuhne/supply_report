@@ -39,7 +39,9 @@ class MyStorePage extends StatelessWidget {
       context: ctx,
       delegate: ItemSearch(searchItems),
     );
-    _animateToIndex(searchItems.indexOf(result));
+    if (result != null) {
+      _animateToIndex(searchItems.indexOf(result));
+    }
   }
 
   void _openNewItem(BuildContext ctx, Items items) {

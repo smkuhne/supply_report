@@ -19,7 +19,6 @@ class Item with ChangeNotifier {
       'available': availability.toString(),
     });
     try {
-      print(uri); // TODO remove
       await http.post(uri);
       notifyListeners();
     } catch (error) {

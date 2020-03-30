@@ -18,7 +18,6 @@ class Items with ChangeNotifier {
       '/api/v1/items/all',
       {'storeid': storeID},
     );
-    print(uri); // TODO remove
     try {
       final response = await http.get(uri);
       final extractedData = json.decode(response.body) as List<dynamic>;
