@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:preliminary/models/store.dart';
+import 'package:supplyreport/models/store.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:preliminary/controllers/map_controller.dart';
-import 'package:preliminary/fragments/store_page.dart';
-import 'package:preliminary/tokens/places_api_key.dart';
+import 'package:supplyreport/controllers/map_controller.dart';
+import 'package:supplyreport/fragments/store_page.dart';
+import 'package:supplyreport/tokens/places_api_key.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'dart:async';
@@ -71,7 +71,7 @@ class _MapPageState extends State<MapPage> {
     double radius = 6378137;
 
     //offsets in meters
-    double offset = 10000;
+    double offset = 48000;
 
     double dLatitude = offset/radius;
     double dLongitude = offset/(radius*cos(latitude * pi / 180));
@@ -314,8 +314,7 @@ class _MapPageState extends State<MapPage> {
                                         maxLines: 1),
                                     Text("$_currentAddress",
                                       overflow: TextOverflow.ellipsis,
-                                      maxLines: 1),
-                                    Text("Occupants: $_currentOccupancy")
+                                      maxLines: 1)
                                   ]
                               )
                           )

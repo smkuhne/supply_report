@@ -1,3 +1,6 @@
+/**
+LIST IS DEPRECATED, FOR TESTING PURPOSES ONLY
+
 import 'package:flutter/material.dart';
 
 import '../models/store.dart';
@@ -44,3 +47,4 @@ class ListPage extends StatelessWidget {
     );
   }
 }
+    */
