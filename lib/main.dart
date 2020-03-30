@@ -96,17 +96,7 @@ class _HomePageState extends State<HomePage> {
     switch (fragment) {
       case 'Map':
         if (controller.setNewStore != null){
-          if (_newStore) {
-            controller.setNewStore(false);
-            setState(() {
-              _newStore = false;
-            });
-          } else {
-            controller.setNewStore(true);
-            setState(() {
-              _newStore = true;
-            });
-          }
+          controller.setNewStore();
         }
         break;
       case 'List':
