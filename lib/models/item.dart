@@ -1,11 +1,16 @@
 import 'package:flutter/foundation.dart';
 
-class Item {
+class Item with ChangeNotifier {
   final String name;
-  final bool availability;
+  bool availability;
 
   Item({
     @required this.name,
     @required this.availability,
   });
+
+  void toggleAvailability() {
+    availability = !availability;
+    notifyListeners();
+  }
 }

@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../models/items.dart';
 
 class NewItem extends StatefulWidget {
-  final Function appendItem;
-
-  NewItem(this.appendItem);
-
   @override
   _NewItemState createState() => _NewItemState();
 }
 
 class _NewItemState extends State<NewItem> {
   final _nameController = TextEditingController();
-  bool inStock;
+  bool inStock = false;
+  bool availableSelected = false;
 
   void _submitInput() {
     final enteredName = _nameController.text;
     final enteredAvailability = inStock;
 
-    if ((enteredName.isNotEmpty) && (inStock != null)) {
-      widget.appendItem(
-        enteredName,
-        enteredAvailability,
-      );
+    if (enteredName.isNotEmpty) {
+      Provider.of<Items>(context, listen: false)
+          .addItem(enteredName, enteredAvailability);
       Navigator.of(context).pop();
     }
   }
@@ -56,9 +54,14 @@ class _NewItemState extends State<NewItem> {
                           Text('Available'),
                         ],
                       ),
-                      onPressed: () {
-                        inStock = true;
-                      },
+                      onPressed: availableSelected
+                          ? null
+                          : () {
+                              setState(() {
+                                inStock = true;
+                                availableSelected = true;
+                              });
+                            },
                     ),
                     const SizedBox(width: 10.0),
                     RaisedButton(
@@ -68,9 +71,14 @@ class _NewItemState extends State<NewItem> {
                           Text('Unavailable')
                         ],
                       ),
-                      onPressed: () {
-                        inStock = false;
-                      },
+                      onPressed: availableSelected
+                          ? () {
+                              setState(() {
+                                inStock = false;
+                                availableSelected = false;
+                              });
+                            }
+                          : null,
                     ),
                   ],
                 ),

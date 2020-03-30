@@ -1,84 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/item.dart';
+import '../models/items.dart';
+import '../widgets/store_list_item.dart';
 
 class StoreList extends StatelessWidget {
-  final List<Item> items;
-
-  StoreList(this.items);
-
-  void _updateItem(BuildContext ctx, String id) { // TODO I'm still working on this
-    showDialog(
-      context: ctx,
-      builder: (bCtx) {
-        return AlertDialog(
-          title: const Text('Update Availability'),
-          actions: <Widget>[
-            FlatButton(
-              child: const Text(
-                'Cancel',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              textColor: Colors.red,
-              onPressed: () => Navigator.of(bCtx).pop(),
-            ),
-            FlatButton(
-              child: const Text(
-                'Confirm',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              textColor: Colors.blue,
-              onPressed: () {
-                Navigator.of(bCtx).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+//  Future<void> _refreshProducts(BuildContext context) async {
+//    await Provider.of<Items>(context).fetchAndSetItems();
+//  }
 
   @override
   Widget build(BuildContext context) {
-    const legend = {
-      true: Icon(
-        Icons.check,
-        color: Colors.green,
-      ),
-      false: Icon(
-        Icons.close,
-        color: Colors.red,
-      ),
-    };
-
-    return items.isEmpty
-        ? Column(
-            children: <Widget>[
-              const Text(
-                'There are no inputted items.',
+    final itemsData = Provider.of<Items>(context);
+    final currentItems = itemsData.items;
+    return currentItems.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: const FittedBox(
+              child: Text(
+                'There are currently no inputted items.',
+                style: TextStyle(fontSize: 25.0),
               ),
-              const SizedBox(height: 20.0),
-              const Text('Tap the + button below to input an item.'),
-            ],
-          )
-        : Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: legend[items[index].availability],
-                  title: Text(items[index].name),
-                  trailing: FlatButton(
-                    child: Text(
-                      'Update',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                    onPressed: () {},
-                  ),
-                );
-              },
-              itemCount: items.length,
-              physics: const BouncingScrollPhysics(),
             ),
+          )
+        : // RefreshIndicator(
+//            onRefresh: () => _refreshProducts(context),
+//            child:
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return ChangeNotifierProvider.value(
+                    value: currentItems[index],
+                    child: StoreListItem(),
+                  );
+                },
+                itemCount: currentItems.length,
+                physics: const BouncingScrollPhysics(),
+              ),
+//            ),
           );
   }
 }

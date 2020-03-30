@@ -1,101 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/item.dart';
 import '../models/store.dart';
+import '../models/items.dart';
 import '../widgets/new_item.dart';
 import '../widgets/store_list.dart';
 
-class StorePage extends StatefulWidget {
-  final Store store;
+class StorePage extends StatelessWidget {
+  final Store receivedStore;
 
-  StorePage(this.store);
-
-  @override
-  _StorePageState createState() => _StorePageState(store);
+  StorePage(this.receivedStore);
+  
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: Items(),
+      child: MyStorePage(receivedStore),
+    );
+  }
 }
 
-class _StorePageState extends State<StorePage> {
-  Store currentStore = Store(
-    id: "a",
-    name: 'Safeway',
-    address: '1234 pizza road\nBig City, CA 12345',
-    latitude: 123,
-    longitude: 123,
-    currentOccupancy: 1211231231231231233,
-  ); // TODO find store from store id
+class MyStorePage extends StatelessWidget {
+  final Store currentStore;
 
-  final List<Item> storeItems = [
-    Item(
-      name: 'Eggs',
-      availability: true,
-    ),
-    Item(
-      name: 'Milk',
-      availability: false,
-    ),
-    Item(
-      name: 'Eggs',
-      availability: true,
-    ),
-    Item(
-      name: 'Toilet Paper',
-      availability: false,
-    ),
-    Item(
-      name: 'Milk',
-      availability: false,
-    ),
-    Item(
-      name: 'Toilet Paper',
-      availability: true,
-    ),
-    Item(
-      name: 'Eggs',
-      availability: true,
-    ),
-    Item(
-      name: 'Milk',
-      availability: false,
-    ),
-    Item(
-      name: 'Eggs',
-      availability: true,
-    ),
-    Item(
-      name: 'Toilet Paper',
-      availability: false,
-    ),
-    Item(
-      name: 'Milk',
-      availability: false,
-    ),
-    Item(
-      name: 'Toilet Paper',
-      availability: false,
-    ),
-  ];
-
-  _StorePageState(Store store) {
-    currentStore = store;
-  }
-
-  void _addItem(String nameInput, bool availabilityInput) {
-    final currentExpense = Item(
-      name: nameInput,
-      availability: availabilityInput,
-    );
-
-    setState(() {
-      storeItems.add(currentExpense);
-    });
-  }
+  MyStorePage(this.currentStore);
 
   void _openNewItem(BuildContext ctx) {
+    final items = Provider.of<Items>(ctx, listen: false);
     showModalBottomSheet(
       isScrollControlled: true,
       context: ctx,
       builder: (_) {
-        return NewItem(_addItem);
+        return ListenableProvider.value(value: items, child: NewItem());
       },
     );
   }
@@ -162,11 +97,13 @@ class _StorePageState extends State<StorePage> {
                 },
 //                controller: editingController,
                 decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search",
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(50.0)))),
+                  labelText: "Search",
+                  hintText: "Search",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                  ),
+                ),
               ),
             ),
             ListTile(
@@ -193,7 +130,7 @@ class _StorePageState extends State<StorePage> {
               ),
             ),
             Divider(height: 1.0, thickness: 1.0),
-            StoreList(storeItems),
+            StoreList(),
           ],
         ),
       ),
