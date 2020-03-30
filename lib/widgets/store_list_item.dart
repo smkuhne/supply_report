@@ -73,7 +73,7 @@ class StoreListItem extends StatelessWidget {
       leading: legend[currentItem.availability],
       title: Text(currentItem.name),
       trailing: FlatButton(
-        child: Text(
+        child: const Text(
           'Update',
           style: TextStyle(color: Colors.blue),
         ),
